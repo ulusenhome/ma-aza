@@ -1,1 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ULUSENHOME</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0; background: #f7f7f7; color: #333;
+  }
+  .navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 20px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .navbar-left, .navbar-right {
+    display: flex; align-items: center; gap: 15px;
+  }
+  .logo {
+    font-weight: bold; font-size: 24px; cursor: pointer; color: #000;
+  }
+  button {
+    background: none; border: none; font-size: 16px;
+    padding: 8px 14px; cursor: pointer; color: #444;
+    font-weight: bold;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  button:hover:not(:disabled) {
+    color: #f27a1a;
+  }
+  button.urunler {
+    opacity: 1;
+    color: #444;
+  }
+</style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="navbar-left">
+      <div class="logo" onclick="location.href='index.html'">ULUSENHOME</div>
+      <button disabled>☰ Tüm Kategoriler</button>
+      <button class="urunler" onclick="location.href='urunler.html'">Ürünler</button>
+    </div>
+    <div class="navbar-right">
+      <button onclick="location.href='yetkili.html'">Giris Yap</button>
+      <button onclick="location.href='sepet.html'">Sepetim</button>
+    </div>
+  </div>
 
+  <main style="padding: 40px; text-align:center;">
+    <h1>Ana Sayfa</h1>
+    <p>Hoş geldiniz! UlusenHome sitesine.</p>
+  </main>
+</body>
+</html>
