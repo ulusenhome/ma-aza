@@ -5,8 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>UlusenHome</title>
   <style>
-    body {
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
       font-family: Arial, sans-serif;
       height: 100vh;
       display: flex;
@@ -19,7 +24,44 @@
       padding: 20px;
       font-size: 28px;
       font-weight: bold;
-      text-align: left;
+    }
+
+    .subnav {
+      background-color: #444;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .subnav-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .subnav-left a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    .subnav-left a:hover {
+      text-decoration: underline;
+    }
+
+    .cart-button {
+      background-color: #f90;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 4px;
+    }
+
+    .cart-button:hover {
+      background-color: #e68a00;
     }
 
     main {
@@ -28,11 +70,83 @@
       justify-content: center;
       align-items: center;
       font-size: 36px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .products {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .products img {
+      max-width: 300px;
+      margin-top: 20px;
+    }
+
+    #cart {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      background-color: #f5f5f5;
+      border: 1px solid #ccc;
+      padding: 15px;
+      width: 250px;
+      display: none;
+      z-index: 999;
+    }
+
+    #cart h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+      color: #333;
+    }
+
+    #cart p {
+      color: #666;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
   <header>ULUSENHOME</header>
-  <main>Hoşgeldin</main>
+
+  <div class="subnav">
+    <div class="subnav-left">
+      <a href="#" onclick="goHome()">☰ Tüm Kategoriler</a>
+      <a href="#" onclick="showProducts()">Ürünler</a>
+    </div>
+    <button class="cart-button" onclick="toggleCart()">Sepetim</button>
+  </div>
+
+  <main id="welcome">Hoşgeldin</main>
+
+  <div class="products" id="productSection">
+    <h2>Ürünler</h2>
+    <img src="https://via.placeholder.com/300x200.png?text=Ürün+1" alt="Ürün Resmi">
+  </div>
+
+  <div id="cart">
+    <h3>Sepetim</h3>
+    <p>Henüz ürün eklenmedi.</p>
+  </div>
+
+  <script>
+    function goHome() {
+      document.getElementById("welcome").style.display = "flex";
+      document.getElementById("productSection").style.display = "none";
+    }
+
+    function showProducts() {
+      document.getElementById("welcome").style.display = "none";
+      document.getElementById("productSection").style.display = "block";
+    }
+
+    function toggleCart() {
+      const cart = document.getElementById("cart");
+      cart.style.display = cart.style.display === "block" ? "none" : "block";
+    }
+  </script>
 </body>
 </html>
