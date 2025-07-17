@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ürün Detayı - UlusenHome</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f7f7f7; }
+  .navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 20px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo { font-weight: bold; font-size: 24px; cursor: pointer; color: #000; }
+  .navbar-right button {
+    margin-left: 10px;
+    background: none;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    color: #444;
+    font-size: 16px;
+  }
+  .navbar-right button:hover {
+    color: #f27a1a;
+  }
+  .container {
+    max-width: 900px; margin: 30px auto; background: white; padding: 20px; border-radius: 8px;
+    display: flex; gap: 30px; flex-wrap: wrap;
+  }
+  .image-section { flex: 1 1 300px; }
+  .image-section img {
+    width: 100%; max-width: 400px; border-radius: 8px; object-fit: contain;
+  }
+  .info-section {
+    flex: 1 1 400px; display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .title {
+    font-size: 24px; font-weight: bold; margin-bottom: 15px; color: #222;
+  }
+  .price {
+    font-size: 22px; font-weight: bold; color: #e74c3c; margin-bottom: 20px;
+    margin-top: 8px;
+  }
+  .size-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    margin-top: 10px;
+  }
+  .size-box {
+    width: 48px;
+    height: 27px;
+    border: 1px solid #000;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 27px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    box-sizing: border-box;
+  }
+  .size-box:hover {
+    background-color: #f27a1a;
+    border-color: #f27a1a;
+    color: #fff;
+  }
+  .size-box.selected {
+    background-color: #f27a1a;
+    border-color: #f27a1a;
+    color: #fff;
+  }
+  .btn-add-to-cart {
+    padding: 15px; font-size: 18px; font-weight: bold;
+    background-color: #f27a1a; color: white; border: none; border-radius: 8px;
+    cursor: pointer; transition: background-color 0.3s ease;
+  }
+  .btn-add-to-cart:hover {
+    background-color: #d46e09;
+  }
+  .not-found {
+    text-align: center; font-size: 22px; color: #999; margin-top: 100px;
+  }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="logo" onclick="location.href='index.html'">ULUSENHOME</div>
+  <div class="navbar-right">
+    <button onclick="location.href='urunler.html'">Ürünler</button>
+    <button onclick="location.href='yetkili.html'">Giriş Yap</button>
+    <button onclick="location.href='sepet.html'">Sepetim</button>
+  </div>
+</div>
+
+<div id="content"></div>
+
+<script>
+  const ilanlar = JSON.parse(localStorage.getItem('ilanlar') || '[]');
+
+  function getIdFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return parseInt(params.get('id'));
+  }
+
+  function loadProduct() {
+    const id = getIdFromUrl();
+    if (!id) {
+      alert("Ürün ID belirtilmemiş. Ürünler sayfasına yönlendiriliyorsunuz.");
+      window.location.href = 'urunler.html';
+      return;
+    }
+
+    const product = ilanlar.find(p => p.id === id);
+
+    if (!product) {
+      document.getElementById('content').innerHTML = '<p class="not-found">Ürün bulunamadı.</p>';
+      return;
+    }
+
+    document.getElementById('content').innerHTML = `
+      <div class="container">
+        <div class="image-section">
+          <img src="${product.resim}" alt="${product.baslik}" onerror="this.src='https://via.placeholder.com/400x400?text=Resim+Yok'" />
+        </div>
+        <div class="info-section">
+          <div>
+            <div class="title">${product.baslik}</div>
+            <div class="price">₺${Number(product.fiyat).toFixed(2)}</div>
+
+            <div class="size-selector" id="sizeSelector">
+              <div class="size-box" data-size="37">37</div>
+              <div class="size-box" data-size="38">38</div>
+              <div class="size-box" data-size="39">39</div>
+              <div class="size-box" data-size="40">40</div>
+            </div>
+
+          </div>
+          <button class="btn-add-to-cart" onclick="addToCart(${product.id})">Sepete Ekle</button>
+        </div>
+      </div>
+    `;
+
+    const sizeBoxes = document.querySelectorAll('.size-box');
+    sizeBoxes.forEach(box => {
+      box.addEventListener('click', () => {
+        sizeBoxes.forEach(b => b.classList.remove('selected'));
+        box.classList.add('selected');
+      });
+    });
+  }
+
+  function addToCart(productId) {
+    const sepet = JSON.parse(localStorage.getItem('sepet') || '[]');
+    const product = ilanlar.find(p => p.id === productId);
+    if (!product) return alert('Ürün bulunamadı.');
+
+    const selectedSize = document.querySelector('.size-box.selected');
+    if (!selectedSize) {
+      return alert('Lütfen bir beden seçin.');
+    }
+    const size = selectedSize.getAttribute('data-size');
+
+    const existingIndex = sepet.findIndex(item => item.id === productId && item.beden === size);
+    if (existingIndex > -1) {
+      sepet[existingIndex].adet++;
+    } else {
+      sepet.push({ 
+        id: product.id,
+        baslik: product.baslik,
+        fiyat: Number(product.fiyat),
+        resim: product.resim,
+        adet: 1,
+        beden: size
+      });
+    }
+    localStorage.setItem('sepet', JSON.stringify(sepet));
+    alert(`Ürün sepete eklendi. Beden: ${size}`);
+  }
+
+  window.onload = loadProduct;
+</script>
+
+</body>
+</html>

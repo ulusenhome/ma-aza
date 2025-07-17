@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ürünler - UlusenHome</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0; background: #f7f7f7; color: #333;
+  }
+  .navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 20px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .navbar-left, .navbar-right {
+    display: flex; align-items: center; gap: 15px;
+  }
+  .logo {
+    font-weight: bold; font-size: 24px; cursor: pointer; color: #000;
+  }
+  button {
+    background: none; border: none; font-size: 16px;
+    padding: 8px 14px; cursor: pointer; color: #444;
+    font-weight: bold;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  button:hover:not(:disabled) {
+    color: #f27a1a;
+  }
+  button.urunler {
+    opacity: 1;
+    color: #444;
+  }
+  .urunler-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: flex-start;
+  }
+  .widget-product {
+    width: 220px;
+    height: 340px;
+    border: 1px solid #e0e0e0;
+    background-color: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+  }
+  .widget-product:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+  .image-container {
+    width: 220px;
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+  }
+  .image-container img {
+    width: 220px;
+    height: 220px;
+    object-fit: contain;
+    display: block;
+  }
+  .product-stamps {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    pointer-events: none;
+  }
+  .stamp-box-wrapper {
+    background-color: #2ecc71;
+    color: white;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+  }
+  .stamp-box-wrapper.i-badge-cargo::before {
+    content: "🚚";
+    margin-right: 4px;
+  }
+  .description {
+    padding: 8px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 120px;
+    position: relative;
+  }
+  .product-info-area {
+    flex-grow: 1;
+  }
+  .product-brand-description {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .product-name-wrapper .brand {
+    font-weight: bold;
+    margin-right: 4px;
+    color: #222;
+    text-transform: uppercase;
+  }
+  .product-name-wrapper .name {
+    font-weight: normal;
+    color: #444;
+  }
+  .price-wrapper {
+    font-size: 16px;
+    font-weight: bold;
+    color: #e74c3c;
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+  }
+</style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="navbar-left">
+      <div class="logo" onclick="location.href='index.html'">ULUSENHOME</div>
+      <button disabled>☰ Tüm Kategoriler</button>
+      <button class="urunler" disabled>Ürünler</button>
+    </div>
+    <div class="navbar-right">
+      <button onclick="location.href='yetkili.html'">Giriş Yap</button>
+      <button onclick="location.href='sepet.html'">Sepetim</button>
+    </div>
+  </div>
+
+  <div class="urunler-container" id="urunlerContainer"></div>
+  
+<script>
+  window.onload = function() {
+    let ilanlar = [];
+    try {
+      ilanlar = JSON.parse(localStorage.getItem('ilanlar')) || [];
+    } catch {
+      ilanlar = [];
+    }
+
+    const container = document.getElementById('urunlerContainer');
+    container.innerHTML = '';
+
+    ilanlar.forEach(({id, baslik, fiyat, resim, hizliTeslimat}) => {
+      let fiyatNum = Number(fiyat);
+      if (isNaN(fiyatNum) || fiyatNum < 0) {
+        return; // NaN veya negatif ise gösterme
+      }
+
+      const a = document.createElement('a');
+      a.className = 'widget-product';
+      a.href = `urunDetay.html?id=${id}`;
+      a.title = baslik;
+
+      a.innerHTML = `
+        <div class="image-container">
+          <img src="${resim}" alt="${baslik}" onerror="this.src='https://via.placeholder.com/220x220?text=Resim+Yok'" />
+          <div class="product-stamps">
+            ${hizliTeslimat ? `<div class="stamp-box-wrapper i-badge-cargo">HIZLI TESLİMAT</div>` : ''}
+          </div>
+        </div>
+        <div class="description fixed-elements">
+          <div class="product-info-area">
+            <div class="product-brand-description two-line-text">
+              <div class="product-name-wrapper">
+                <span class="brand">ULUSEN</span>
+                <span class="name">${baslik}</span>
+              </div>
+            </div>
+          </div>
+          <div class="price-wrapper">₺${fiyatNum.toFixed(2)}</div>
+        </div>
+      `;
+
+      container.appendChild(a);
+    });
+  };
+</script>
+</body>
+</html>

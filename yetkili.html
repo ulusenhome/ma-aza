@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Yetkili Paneli - UlusenHome</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; color: #333; }
+  .navbar {
+    display: flex; align-items: center;
+    padding: 12px 20px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    font-weight: bold; font-size: 24px; cursor: pointer; color: #000;
+  }
+  #loginPanel {
+    max-width: 400px;
+    margin: 100px auto;
+    background:#fff;
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+  }
+  #loginPanel input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+  }
+  #loginPanel button {
+    width: 100%;
+    padding: 10px;
+    background: #f27a1a;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  #loginPanel button:hover {
+    background: #d46e09;
+  }
+  #adminPanel {
+    display: none;
+    max-width: 980px;
+    margin: 20px auto;
+  }
+  .ilan-form {
+    background: #fff;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .ilan-form h2 {
+    margin-top: 0;
+    color: #f27a1a;
+  }
+  .ilan-form label {
+    display: block;
+    margin: 12px 0 6px;
+    font-weight: bold;
+  }
+  .ilan-form input {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  .ilan-form button {
+    margin-top: 15px;
+    background: #f27a1a;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .ilan-form button:hover {
+    background: #d46e09;
+  }
+  .urunler-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .urun-kutu {
+    background: white;
+    width: 220px;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 0.1);
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+    position: relative;
+    color: #000;
+    text-decoration: none;
+  }
+  .urun-kutu:hover {
+    box-shadow: 0 5px 15px rgb(0 0 0 / 0.2);
+  }
+  .urun-img {
+    width: 100%;
+    height: 150px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    object-fit: cover;
+  }
+  .urun-info {
+    padding: 12px;
+  }
+  .urun-baslik {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 6px;
+    color: #333;
+  }
+  .urun-fiyat {
+    font-weight: bold;
+    font-size: 18px;
+    color: #f27a1a;
+  }
+  .sil-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: #e74c3c;
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+  }
+  .sil-btn:hover {
+    background: #c0392b;
+  }
+  .ilan-id {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    font-size: 12px;
+    color: #888;
+  }
+</style>
+</head>
+<body>
+  <div id="loginPanel">
+    <h2>Giriş Yap</h2>
+    <input id="username" type="text" placeholder="Kullanıcı Adı" />
+    <input id="password" type="password" placeholder="Şifre" />
+    <button onclick="login()">Giriş</button>
+  </div>
+
+  <div id="adminPanel">
+    <div class="navbar">
+      <div class="logo" onclick="location.href='index.html'">ULUSENHOME</div>
+      <button style="margin-left:auto; padding:8px 12px; cursor:pointer;" onclick="logout()">Çıkış Yap</button>
+    </div>
+
+    <div class="ilan-form">
+      <h2>Yeni İlan Ekle</h2>
+      <label for="baslik">Başlık</label>
+      <input id="baslik" type="text" placeholder="İlan başlığını girin" />
+      <label for="fiyat">Fiyat</label>
+      <input id="fiyat" type="number" step="0.01" min="0" placeholder="Fiyatı girin (örn: 299.99)" />
+      <label for="resim">Görsel Linki</label>
+      <input id="resim" type="text" placeholder="Resim URL'si (jpg/png)" />
+      <button onclick="ilanEkle()">İlanı Ekle</button>
+    </div>
+
+    <div class="urunler-container" id="urunlerContainer"></div>
+  </div>
+
+<script>
+  const users = [
+    { username: 'admin', password: 'ulusen123', role: 'yetkili' },
+    { username: 'kullanici', password: '123456', role: 'kullanici' }
+  ];
+
+  function login() {
+    const u = document.getElementById('username').value.trim();
+    const p = document.getElementById('password').value.trim();
+
+    const user = users.find(x => x.username === u && x.password === p);
+    if(user && user.role === 'yetkili') {
+      sessionStorage.setItem('girisYapildi', 'true');
+      showAdminPanel();
+    } else {
+      alert('Geçersiz kullanıcı veya yetkiniz yok!');
+    }
+  }
+
+  function showAdminPanel() {
+    document.getElementById('loginPanel').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadIlanlar();
+  }
+
+  function logout() {
+    sessionStorage.removeItem('girisYapildi');
+    document.getElementById('adminPanel').style.display = 'none';
+    document.getElementById('loginPanel').style.display = 'block';
+  }
+
+  window.onload = function() {
+    if(sessionStorage.getItem('girisYapildi') === 'true') {
+      showAdminPanel();
+    }
+  };
+
+  function ilanEkle() {
+    const baslik = document.getElementById('baslik').value.trim();
+    const fiyatInput = document.getElementById('fiyat').value.trim();
+    const fiyat = parseFloat(fiyatInput);
+    const resim = document.getElementById('resim').value.trim();
+
+    if (!baslik || isNaN(fiyat) || fiyat <= 0 || !resim) {
+      alert('Lütfen tüm alanları doğru ve eksiksiz doldurun!');
+      return;
+    }
+
+    const ilanlar = JSON.parse(localStorage.getItem('ilanlar') || '[]');
+
+    const yeniId = ilanlar.length > 0 ? Math.max(...ilanlar.map(i => i.id || 0)) + 1 : 1;
+    const yeniIlan = { id: yeniId, baslik, fiyat, resim };
+
+    ilanlar.push(yeniIlan);
+    localStorage.setItem('ilanlar', JSON.stringify(ilanlar));
+
+    ilanEkleDOM(yeniIlan);
+
+    document.getElementById('baslik').value = '';
+    document.getElementById('fiyat').value = '';
+    document.getElementById('resim').value = '';
+  }
+
+  function ilanEkleDOM(ilan) {
+    const urunlerContainer = document.getElementById('urunlerContainer');
+    const urunKutu = document.createElement('div');
+    urunKutu.className = 'urun-kutu';
+
+    urunKutu.innerHTML = `
+      <img class="urun-img" src="${ilan.resim}" alt="${ilan.baslik}" onerror="this.src='https://via.placeholder.com/220x150?text=Resim+Yok'"/>
+      <div class="urun-info">
+        <div class="urun-baslik">${ilan.baslik}</div>
+        <div class="urun-fiyat">₺${parseFloat(ilan.fiyat).toFixed(2)}</div>
+      </div>
+      <div class="ilan-id">ID: ${ilan.id}</div>
+      <button class="sil-btn">Sil</button>
+    `;
+
+    urunlerContainer.appendChild(urunKutu);
+
+    urunKutu.querySelector('.sil-btn').addEventListener('click', function() {
+      ilanSil(ilan.id, urunKutu);
+    });
+  }
+
+  function ilanSil(id, urunKutu) {
+    let ilanlar = JSON.parse(localStorage.getItem('ilanlar') || '[]');
+    ilanlar = ilanlar.filter(ilan => ilan.id !== id);
+    localStorage.setItem('ilanlar', JSON.stringify(ilanlar));
+    urunKutu.remove();
+  }
+
+  function loadIlanlar() {
+    const ilanlar = JSON.parse(localStorage.getItem('ilanlar') || '[]');
+    const urunlerContainer = document.getElementById('urunlerContainer');
+    urunlerContainer.innerHTML = '';
+    ilanlar.forEach(ilan => ilanEkleDOM(ilan));
+  }
+</script>
+</body>
+</html>

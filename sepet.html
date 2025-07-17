@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sepetim - UlusenHome</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f6f6f6;
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    table {
+      width: 600px;
+      background: white;
+      border-collapse: collapse;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 14px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: #f27a1a;
+      color: white;
+      font-weight: bold;
+    }
+
+    .sil-btn {
+      background-color: #ff4d4f;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .sil-btn:hover {
+      background-color: #d9363e;
+    }
+
+    .adet-btn {
+      background: #f27a1a;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+      user-select: none;
+      margin: 0 5px;
+    }
+
+    .adet-sayi {
+      font-weight: bold;
+      font-size: 16px;
+      min-width: 24px;
+      text-align: center;
+      display: inline-block;
+    }
+
+    .siparis-ozeti {
+      width: 320px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      height: fit-content;
+    }
+
+    .siparis-ozeti h3 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .toplam-tutar {
+      font-size: 18px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .kupon-kodu input {
+      width: 100%;
+      max-width: 280px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    .btn-satin-al {
+      width: 100%;
+      padding: 12px;
+      background-color: #f27a1a;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-satin-al:hover {
+      background-color: #d46e09;
+    }
+  </style>
+</head>
+<body>
+
+  <table id="sepetTablosu">
+    <thead>
+      <tr>
+        <th>Ürün (Beden)</th>
+        <th>Adet</th>
+        <th>Fiyat (₺)</th>
+        <th>Sil</th>
+      </tr>
+    </thead>
+    <tbody id="sepetBody"></tbody>
+  </table>
+
+  <div class="siparis-ozeti">
+    <h3>Sipariş Özeti</h3>
+    <div class="toplam-tutar">
+      <span>Toplam Tutar:</span> <strong id="toplamTutar">₺0.00</strong>
+    </div>
+    <div class="kupon-kodu">
+      <input type="text" placeholder="Kupon Kodu" id="kuponInput" />
+    </div>
+    <button class="btn-satin-al" onclick="satinAl()">Satın Al</button>
+  </div>
+
+<script>
+  function sepetiGoster() {
+    const sepet = JSON.parse(localStorage.getItem("sepet") || "[]");
+    const sepetBody = document.getElementById("sepetBody");
+    sepetBody.innerHTML = "";
+
+    let toplam = 0;
+
+    sepet.forEach((urun, index) => {
+      let fiyat = parseFloat(urun.fiyat);
+      if (isNaN(fiyat)) fiyat = 0;
+
+      let adet = parseInt(urun.adet);
+      if (isNaN(adet) || adet < 1) adet = 1;
+
+      toplam += fiyat * adet;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${urun.baslik} (Beden: ${urun.size || '-'})</td>
+        <td>
+          <button class="adet-btn" onclick="adetAzalt(${index})">-</button>
+          <span class="adet-sayi">${adet}</span>
+          <button class="adet-btn" onclick="adetArttir(${index})">+</button>
+        </td>
+        <td>₺${(fiyat * adet).toFixed(2)}</td>
+        <td><button class="sil-btn" onclick="urunuSil(${index})">Sil</button></td>
+      `;
+
+      sepetBody.appendChild(tr);
+    });
+
+    document.getElementById("toplamTutar").textContent = `₺${toplam.toFixed(2)}`;
+  }
+
+  function adetArttir(index) {
+    const sepet = JSON.parse(localStorage.getItem("sepet") || "[]");
+    sepet[index].adet = parseInt(sepet[index].adet) || 1;
+    sepet[index].adet++;
+    localStorage.setItem("sepet", JSON.stringify(sepet));
+    sepetiGoster();
+  }
+
+  function adetAzalt(index) {
+    const sepet = JSON.parse(localStorage.getItem("sepet") || "[]");
+    sepet[index].adet = parseInt(sepet[index].adet) || 1;
+    if (sepet[index].adet > 1) {
+      sepet[index].adet--;
+    } else {
+      sepet.splice(index, 1);
+    }
+    localStorage.setItem("sepet", JSON.stringify(sepet));
+    sepetiGoster();
+  }
+
+  function urunuSil(index) {
+    const sepet = JSON.parse(localStorage.getItem("sepet") || "[]");
+    sepet.splice(index, 1);
+    localStorage.setItem("sepet", JSON.stringify(sepet));
+    sepetiGoster();
+  }
+
+  function satinAl() {
+    alert("Satın alma işleminiz başarıyla tamamlandı!");
+    localStorage.removeItem("sepet");
+    sepetiGoster();
+  }
+
+  window.onload = sepetiGoster;
+</script>
+
+</body>
+</html>
